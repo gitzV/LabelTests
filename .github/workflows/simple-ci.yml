@@ -1,34 +1,24 @@
-name: Auto PR on data.txt Change
+name: Auto PR from dev to main
 
 on:
   push:
-    paths:
-      - 'data.txt'  # Trigger only if this file is changed
+    branches:
+      - dev  # Trigger only when there is a push to the 'dev' branch
 
 jobs:
   create-pull-request:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Create branch
-        run: |
-          BRANCH="update-data-$(date +%s)"
-          git checkout -b $BRANCH
-          git add data.txt
-          git commit -m "Update data.txt via GitHub Actions" || echo "No changes to commit"
-          git push origin $BRANCH
-
-      - name: Create Pull Request
+      - name: Create Pull Request from dev to main
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          title: "Automated update to data.txt"
-          body: "This PR was created automatically when data.txt was updated."
+          source: dev
           base: main
+          title: "Auto PR: Merge changes from dev to main"
+          body: |
+            This pull request was automatically created because of a push to the `dev` branch.
