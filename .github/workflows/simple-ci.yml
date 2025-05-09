@@ -3,22 +3,23 @@ name: Auto PR from dev to main
 on:
   push:
     branches:
-      - dev
+      - dev  # Trigger on pushes to dev branch
 
 jobs:
-  create-pr:
+  auto-pr:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Needed to compare branches
 
-      - name: Create Pull Request
+      - name: Create PR from dev to main
         uses: repo-sync/pull-request@v2
         with:
           source_branch: dev
           destination_branch: main
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pr_title: "Auto PR: Merge dev into main"
+          pr_body: "This pull request was created automatically when code was pushed to dev."
