@@ -1,5 +1,10 @@
 name: Auto PR from dev to main
 
+permissions:
+  contents: write
+  pull-requests: write
+
+
 on:
   push:
     branches:
