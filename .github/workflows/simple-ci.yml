@@ -3,15 +3,17 @@ name: Auto PR from dev to main
 on:
   push:
     branches:
-      - dev  # Trigger only when there is a push to the 'dev' branch
+      - dev
 
 jobs:
   create-pull-request:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Get full history to allow branch comparisons
 
       - name: Create Pull Request from dev to main
         uses: peter-evans/create-pull-request@v6
@@ -19,6 +21,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           source: dev
           base: main
-          title: "Auto PR: Merge changes from dev to main"
-          body: |
-            This pull request was automatically created because of a push to the `dev` branch.
+          title: "Auto PR: Merge dev into main"
+          body: "This PR was created automatically after a push to `dev`."
