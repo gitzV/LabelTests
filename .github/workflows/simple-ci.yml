@@ -1,31 +1,21 @@
-name: Auto PR from dev to main
-
-permissions:
-  contents: write
-  pull-requests: write
-
+name: Create PR from dev to main
 
 on:
   push:
-    branches:
-      - dev  # Trigger when there's a push to dev branch
+    branches: [dev]
+  workflow_dispatch:
 
 jobs:
-  create-pull-request:
+  create-pr:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Fetch full history to properly compare branches
-
-      - name: Create Pull Request from dev to main
+      - uses: actions/checkout@v4
+      
+      - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}  # Use GitHub's token for authentication
-          source: dev  # The branch we want to create a PR from
-          base: main   # The branch we want to merge into
-          title: "Auto PR: Merge dev into main"
-          body: |
-            This pull request was created automatically after a push to the dev branch.
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: 'Merge dev into main'
+          body: 'Automated PR from dev to main'
+          branch: dev
+          base: main
