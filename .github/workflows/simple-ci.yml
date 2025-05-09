@@ -1,0 +1,17 @@
+name: Simple CI
+
+on:
+  push:
+    paths:
+      - 'data.txt'  # Only trigger when this file changes
+
+jobs:
+  print-content:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Show content of data.txt
+      run: cat data.txt
