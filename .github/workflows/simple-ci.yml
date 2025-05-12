@@ -26,5 +26,9 @@ jobs:
           
           gh pr edit ${{ github.event.pull_request.number }} --add-label "QA"
 
+          STATUS=$(gh pr view $PR_NUMBER --json state,reviewDecision --jq '.state + " - " + .reviewDecision')
+
+          echo "Current PR Status: $STATUS"
+
           
           echo "CHANGED_FILES: $CHANGED_FILES"      
