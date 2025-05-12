@@ -21,8 +21,6 @@ jobs:
           CLEAN_TITLE=$(echo "$PR_TITLE" | sed -E 's/ \| (stg|rv|bv|im)(,(stg|rv|bv|im))*//g' | sed 's/ *$//')
           
           echo "CLEAN_TITLE: $CLEAN_TITLE"
-
-      - name: Add label to PR
-        run: |
+          
           gh pr edit ${{ github.event.pull_request.number }} --add-label "QA"
           echo "CHANGED_FILES: $CHANGED_FILES"      
