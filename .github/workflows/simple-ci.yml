@@ -10,3 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Update PR Title
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          PR_TITLE=$(jq -r '.title' <(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER))
+          
+          # Remove existing labels from the title
+          CLEAN_TITLE=$(echo "$PR_TITLE" | sed -E 's/ \| (stg|rv|bv|im)(,(stg|rv|bv|im))*//g' | sed 's/ *$//')
+          
+          echo "CLEAN_TITLE: $CLEAN_TITLE"
+          echo "CHANGED_FILES: $CHANGED_FILES"      
