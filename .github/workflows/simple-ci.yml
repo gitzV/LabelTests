@@ -12,6 +12,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Update PR Title
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
           PR_TITLE=$(jq -r '.title' <(curl -s https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER))
@@ -23,4 +25,6 @@ jobs:
           echo "CLEAN_TITLE: $CLEAN_TITLE"
           
           gh pr edit ${{ github.event.pull_request.number }} --add-label "QA"
+
+          
           echo "CHANGED_FILES: $CHANGED_FILES"      
