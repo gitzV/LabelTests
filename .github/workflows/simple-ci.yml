@@ -24,7 +24,13 @@ jobs:
           
           echo "CLEAN_TITLE: $CLEAN_TITLE"
           
-          gh pr edit ${{ github.event.pull_request.number }} --add-label "QA"
+          #gh pr edit ${{ github.event.pull_request.number }} --add-label "QA"
+          curl -X POST \
+          -H "Authorization: Bearer YOUR_GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github+json" \
+          https://api.github.com/repos/OWNER/REPO/issues/PULL_REQUEST_NUMBER/labels \
+          -d '{"labels": ["QA"]}'
+
 
           STATUS=$(gh pr view $PR_NUMBER --json state,reviewDecision --jq '.state + " - " + .reviewDecision')
 
