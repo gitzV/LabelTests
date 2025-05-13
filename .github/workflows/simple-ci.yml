@@ -23,11 +23,10 @@ jobs:
           CLEAN_TITLE=$(echo "$PR_TITLE" | sed -E 's/ \| (stg|rv|bv|im)(,(stg|rv|bv|im))*//g' | sed 's/ *$//')
           
           echo "CLEAN_TITLE: $CLEAN_TITLE"
-           curl -X POST \
-          -H "Authorization: token $GH_TOKEN" \
-          -H "Accept: application/vnd.github+json" \
-          https://api.github.com/repos/$REPO/issues/$PR_NUMBER/labels \
-          -d '{"labels": ["qa"]}'
+          
+          gh pr edit ${{ github.event.pull_request.number }} --add-label "QA"
+
+          STATUS=$(gh pr view $PR_NUMBER --json state,reviewDecision --jq '.state + " - " + .reviewDecision')
 
           echo "Current PR Status: $STATUS"
 
