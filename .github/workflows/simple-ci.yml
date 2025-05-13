@@ -11,30 +11,55 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Update PR Title
+      - name: Set up GitHub CLI
+        uses: cli/cli-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create or update pull request
+        id: cpr
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PR_NUMBER=${{ github.event.pull_request.number }}
-          PR_TITLE=$(jq -r '.title' <(curl -s https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER))
+          # Create a pull request from dev to main if it doesn't exist
+          gh pr create --base main --head dev --title "Auto PR: dev to main" --body "This PR is automatically created." || echo "PR already exists"
 
-          
-          # Remove existing labels from the title
+      - name: Get PR number
+        id: get-pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get the PR number for dev -> main
+          PR_NUMBER=$(gh pr list --head dev --base main --json number -q '.[0].number')
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+
+      - name: Update PR Title and Add Label
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ env.PR_NUMBER }}
+        run: |
+          # Get the current PR title
+          PR_TITLE=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER | jq -r '.title')
+
+          # Remove existing environment labels (like "| stg,rv") from the title
           CLEAN_TITLE=$(echo "$PR_TITLE" | sed -E 's/ \| (stg|rv|bv|im)(,(stg|rv|bv|im))*//g' | sed 's/ *$//')
-          
-          echo "CLEAN_TITLE: $CLEAN_TITLE"
-          
-          #gh pr edit ${{ github.event.pull_request.number }} --add-label "QA"
+          echo "Cleaned PR Title: $CLEAN_TITLE"
+
+          # Update PR title with cleaned title (optional step)
+          gh pr edit "$PR_NUMBER" --title "$CLEAN_TITLE"
+
+          # Add QA label to PR
           curl -X POST \
-          -H "Authorization: Bearer YOUR_GITHUB_TOKEN" \
-          -H "Accept: application/vnd.github+json" \
-          https://api.github.com/repos/OWNER/REPO/issues/$PR_NUMBER/labels \
-          -d '{"labels": ["QA"]}'
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues/$PR_NUMBER/labels \
+            -d '{"labels": ["QA"]}'
 
-
-          STATUS=$(gh pr view $PR_NUMBER --json state,reviewDecision --jq '.state + " - " + .reviewDecision')
-
+      - name: Show PR Status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          STATUS=$(gh pr view "$PR_NUMBER" --json state,reviewDecision --jq '.state + " - " + .reviewDecision')
           echo "Current PR Status: $STATUS"
-
-          
-          echo "CHANGED_FILES: $CHANGED_FILES"      
