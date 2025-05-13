@@ -28,7 +28,7 @@ jobs:
           curl -X POST \
           -H "Authorization: Bearer YOUR_GITHUB_TOKEN" \
           -H "Accept: application/vnd.github+json" \
-          https://api.github.com/repos/OWNER/REPO/issues/PULL_REQUEST_NUMBER/labels \
+          https://api.github.com/repos/OWNER/REPO/issues/$PR_NUMBER/labels \
           -d '{"labels": ["QA"]}'
 
 
