@@ -23,9 +23,13 @@ jobs:
           CLEAN_TITLE=$(echo "$PR_TITLE" | sed -E 's/ \| (stg|rv|bv|im)(,(stg|rv|bv|im))*//g' | sed 's/ *$//')
           
           echo "CLEAN_TITLE: $CLEAN_TITLE"
-          
-          curl -X POST \
+           curl -X POST \
           -H "Authorization: token $GH_TOKEN" \
           -H "Accept: application/vnd.github+json" \
           https://api.github.com/repos/$REPO/issues/$PR_NUMBER/labels \
-          -d '{"labels": ["qa"]}
+          -d '{"labels": ["qa"]}'
+
+          echo "Current PR Status: $STATUS"
+
+          
+          echo "CHANGED_FILES: $CHANGED_FILES"      
